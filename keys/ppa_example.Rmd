@@ -9,6 +9,9 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(here)
+# Get dev version of sf
+# library(devtools)
+# install_github("r-spatial/sf")
 library(sf)
 library(rgdal)
 library(spatstat)
