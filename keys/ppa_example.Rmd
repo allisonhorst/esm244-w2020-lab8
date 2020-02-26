@@ -1,0 +1,123 @@
+---
+title: "Point pattern analysis example"
+author: "Allison Horst"
+date: "2/26/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(here)
+library(sf)
+library(rgdal)
+library(spatstat)
+library(maptools)
+library(sp)
+```
+
+This is an example of point pattern analysis with quadrat analysis, density plot, the G-function, and a hypothesis test for complete spatial randomness.
+
+- Using: Sage grouse telemetry, Mono County:
+- Data summary: CA DFG sage grouse telemetry (Mono County)
+- Files: ds68 layer
+- Contact: William Perry, US Geological Survey (USGS)
+- Link: https://map.dfg.ca.gov/metadata/ds0068.html
+
+Info from site: 
+"The purpose of this dataset is to answer questions about sage grouse movement and habitat use in Mono County."
+
+### Get spatial points and county boundary:
+
+Get the sage grouse data (note: we'll treat each *observation* as a separate "event" - we're not taking into account bird ID here):
+```{r}
+grouse <- read_sf(here("data","sg_data","ds68.shp")) %>% 
+  dplyr::select(DATE_) %>% 
+  st_transform(crs = 4326)
+
+plot(grouse)
+```
+
+Definitely looks clustered. 
+Get the Mono County shapefile:
+
+```{r}
+county <- read_sf(dsn = here("data","sg_data","County_Boundaries.shp")) %>% dplyr::select(CountyName) %>% 
+  st_transform(crs = 4326)
+
+plot(county)
+```
+
+Plot them together: 
+```{r}
+ggplot() +
+  geom_sf(data = county) +
+  geom_sf(data = grouse)
+```
+
+Only keep points that are within the Mono County borders:
+```{r}
+mono_grouse <- st_intersection(grouse, county)
+
+ggplot() +
+  geom_sf(data = county) +
+  geom_sf(data = mono_grouse, alpha = 0.1) +
+  theme_void()
+
+# cool. 
+```
+
+### Now make this a spatial point pattern: 
+```{r}
+grouse_sp <- as(mono_grouse,"Spatial")
+grouse_ppp <- as(grouse_sp, "ppp")
+
+mono_sp <- as(county, "Spatial")
+mono_win <- as(mono_sp, "owin")
+
+# Combine as a point pattern (points + window):
+grouse_full <- ppp(grouse_ppp$x, grouse_ppp$y, window = mono_win)
+
+plot(grouse_full)
+
+```
+
+### Quadrat test:
+```{r}
+grouse_qt <- quadrat.test(grouse_full, nx = 5, ny = 10)
+
+# Look at it: 
+plot(grouse_full)
+plot(grouse_qt, add = TRUE, cex = 0.4)
+```
+
+What's shown on that map? See `?quadrat.test`:
+
+"In all cases, the window of observation is divided into tiles, and the number of data points in each tile is counted, as described in quadratcount. The quadrats are rectangular by default, or may be regions of arbitrary shape specified by the argument tess. The expected number of points in each quadrat is also calculated, as determined by CSR (in the first case) or by the fitted model (in the second case). Then the Pearson X^2 statistic
+
+X^2 = sum((observed - expected)^2/expected)
+
+is computed."
+
+### Density
+```{r}
+grouse_density <- density(grouse_full, sigma = 0.08)
+plot(grouse_density)
+
+```
+
+### Nearest neighbor analysis (G-Function):
+```{r}
+r <- seq(0,0.02, by = 0.0001)
+
+gfunction <- envelope(grouse_full, fun = Gest, r = r, nsim = 100, nrank = 2) # Sig level of Monte Carlo = 0.04
+
+plot(gfunction$obs ~ gfunction$r, type = "l", col = "black", lty = 11)
+lines(gfunction$hi ~ gfunction$r, type = "l", col = "blue", lty = 8)
+lines(gfunction$theo ~ gfunction$r, type = "l", col = "red", lty = 6)
+lines(gfunction$lo ~ gfunction$r, type = "l", col = "green", lty = 4)
+
+# Confirms, in combination with WHAT WE SEE (most importantly), + quadrat.test & density = clustered data!
+```
+
+
