@@ -33,7 +33,9 @@ Get the sage grouse data (note: we'll treat each *observation* as a separate "ev
 ```{r}
 grouse <- read_sf(here("data","sg_data","ds68.shp")) %>% 
   dplyr::select(DATE_) %>% 
-  st_transform(crs = 4326)
+  st_transform(crs = 6345)
+
+# Note: this transform to 6345 *works*, but shouldn't be necessary and messes up the G & L functions...
 
 plot(grouse)
 ```
@@ -43,7 +45,7 @@ Get the Mono County shapefile:
 
 ```{r}
 county <- read_sf(dsn = here("data","sg_data","County_Boundaries.shp")) %>% dplyr::select(CountyName) %>% 
-  st_transform(crs = 4326)
+  st_transform(crs = 6345)
 
 plot(county)
 ```
@@ -101,21 +103,21 @@ is computed."
 
 ### Density
 ```{r}
-grouse_density <- density(grouse_full, sigma = 0.08)
+grouse_density <- density(grouse_full, sigma = 5000)
 plot(grouse_density)
 
 ```
 
 ### Nearest neighbor analysis (G-Function):
 ```{r}
-r <- seq(0,0.02, by = 0.0001)
+# r <- seq(0,0.000001, by = 0.0000005)
 
-gfunction <- envelope(grouse_full, fun = Gest, r = r, nsim = 100, nrank = 2) # Sig level of Monte Carlo = 0.04
+# gfunction <- envelope(grouse_full, fun = Gest, r = r, nsim = 100, nrank = 2) # Sig level of Monte Carlo = 0.04
 
-plot(gfunction$obs ~ gfunction$r, type = "l", col = "black", lty = 11)
-lines(gfunction$hi ~ gfunction$r, type = "l", col = "blue", lty = 8)
-lines(gfunction$theo ~ gfunction$r, type = "l", col = "red", lty = 6)
-lines(gfunction$lo ~ gfunction$r, type = "l", col = "green", lty = 4)
+# plot(gfunction$obs ~ gfunction$r, type = "l", col = "black", lty = 11)
+# lines(gfunction$hi ~ gfunction$r, type = "l", col = "blue", lty = 8)
+# lines(gfunction$theo ~ gfunction$r, type = "l", col = "red", lty = 6)
+# lines(gfunction$lo ~ gfunction$r, type = "l", col = "green", lty = 4)
 
 # Confirms, in combination with WHAT WE SEE (most importantly), + quadrat.test & density = clustered data!
 ```

@@ -12,10 +12,14 @@ knitr::opts_chunk$set(echo = TRUE,
 
 library(tidyverse)
 library(here)
+
+# For text mining:
 library(pdftools)
 library(tidytext)
 library(textdata) 
 library(ggwordcloud)
+
+# For point pattern analysis: 
 
 # Note - Before lab:
 # Attach tidytext and textdata packages
