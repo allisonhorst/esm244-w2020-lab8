@@ -12,7 +12,7 @@ library(here)
 library(sf)
 library(rgdal)
 library(spatstat)
-library(maptools)
+library(maptools) 
 library(sp)
 
 # NOTE: It seems like maptools is under heavy dev right now and many of the functions we're trying (unsuccessfully) to use in maptools to make spatial points stuff, and the problem seems to be the newer versions are problematic. If you were having the "must be projected" error when trying to convert spatial "ppp", the potential fix is to force install an older version of the maptools package. 
@@ -22,8 +22,6 @@ library(sp)
 # detach("package:maptools",unload=TRUE)
 # library(devtools)
 # install_version("maptools", version="0.9-5")
-
-
 
 ```
 
@@ -44,7 +42,7 @@ Get the sage grouse data (note: we'll treat each *observation* as a separate "ev
 ```{r}
 grouse <- read_sf(here("data","sg_data","ds68.shp")) %>% 
   dplyr::select(DATE_) %>% 
-  st_transform(crs = 6345)
+  st_transform(crs = 4326)
 
 # Note: this transform to 6345 *works*, but shouldn't be necessary and messes up the G & L functions...
 
@@ -56,7 +54,7 @@ Get the Mono County shapefile:
 
 ```{r}
 county <- read_sf(dsn = here("data","sg_data","County_Boundaries.shp")) %>% dplyr::select(CountyName) %>% 
-  st_transform(crs = 6345)
+  st_transform(crs = 4326)
 
 plot(county)
 ```
@@ -114,7 +112,7 @@ is computed."
 
 ### Density
 ```{r}
-grouse_density <- density(grouse_full, sigma = 5000)
+grouse_density <- density(grouse_full, sigma = 0.02)
 plot(grouse_density)
 
 ```

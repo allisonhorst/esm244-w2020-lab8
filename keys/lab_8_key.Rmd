@@ -19,8 +19,6 @@ library(tidytext)
 library(textdata) 
 library(ggwordcloud)
 
-# For point pattern analysis: 
-
 # Note - Before lab:
 # Attach tidytext and textdata packages
 # Run: get_sentiments(lexicon = "nrc")
