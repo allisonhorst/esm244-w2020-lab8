@@ -9,14 +9,22 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(here)
-# Get dev version of sf
-# library(devtools)
-# install_github("r-spatial/sf")
 library(sf)
 library(rgdal)
 library(spatstat)
 library(maptools)
 library(sp)
+
+# NOTE: It seems like maptools is under heavy dev right now and many of the functions we're trying (unsuccessfully) to use in maptools to make spatial points stuff, and the problem seems to be the newer versions are problematic. If you were having the "must be projected" error when trying to convert spatial "ppp", the potential fix is to force install an older version of the maptools package. 
+
+# The one that worked for both Jessica and me is using maptools 0.9-5 
+# You can get that by: 
+# detach("package:maptools",unload=TRUE)
+# library(devtools)
+# install_version("maptools", version="0.9-5")
+
+
+
 ```
 
 This is an example of point pattern analysis with quadrat analysis, density plot, the G-function, and a hypothesis test for complete spatial randomness.

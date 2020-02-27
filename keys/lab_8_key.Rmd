@@ -182,6 +182,7 @@ afinn_pos <- get_sentiments("afinn") %>%
   filter(value %in% c(3,4,5))
 
 # Do not look at negative words in class. 
+afinn_pos
 ```
 
 bing: binary, "positive" or "negative"
