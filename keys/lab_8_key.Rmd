@@ -230,7 +230,8 @@ unique(ipcc_afinn2$word)
 
 # Count & plot them
 ipcc_afinn2_n <- ipcc_afinn2 %>% 
-  count(word, sort = TRUE)
+  count(word, sort = TRUE) %>% 
+  mutate(word = fct_reorder(factor(word), n))
 
 ggplot(data = ipcc_afinn2_n, aes(x = word, y = n)) +
   geom_col() +

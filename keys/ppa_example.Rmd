@@ -112,21 +112,21 @@ is computed."
 
 ### Density
 ```{r}
-grouse_density <- density(grouse_full, sigma = 0.02)
+grouse_density <- density(grouse_full, sigma = 0.1)
 plot(grouse_density)
 
 ```
 
 ### Nearest neighbor analysis (G-Function):
 ```{r}
-# r <- seq(0,0.000001, by = 0.0000005)
+r <- seq(0,0.02, by = 0.001)
 
-# gfunction <- envelope(grouse_full, fun = Gest, r = r, nsim = 100, nrank = 2) # Sig level of Monte Carlo = 0.04
+gfunction <- envelope(grouse_full, fun = Gest, r = r, nsim = 100, nrank = 2) # Sig level of Monte Carlo = 0.04
 
-# plot(gfunction$obs ~ gfunction$r, type = "l", col = "black", lty = 11)
-# lines(gfunction$hi ~ gfunction$r, type = "l", col = "blue", lty = 8)
-# lines(gfunction$theo ~ gfunction$r, type = "l", col = "red", lty = 6)
-# lines(gfunction$lo ~ gfunction$r, type = "l", col = "green", lty = 4)
+plot(gfunction$obs ~ gfunction$r, type = "l", col = "black", lty = 11)
+lines(gfunction$hi ~ gfunction$r, type = "l", col = "blue", lty = 8)
+lines(gfunction$theo ~ gfunction$r, type = "l", col = "red", lty = 6)
+lines(gfunction$lo ~ gfunction$r, type = "l", col = "green", lty = 4)
 
 # Confirms, in combination with WHAT WE SEE (most importantly), + quadrat.test & density = clustered data!
 ```
