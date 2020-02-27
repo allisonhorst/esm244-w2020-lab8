@@ -17,7 +17,8 @@
 - `tidytext`
 - `ggwordcloud`
 
-# Note - before lab for sentiment analysis you will need to:
+
+**Note - before lab for sentiment analysis you will need to:**
 
 - Attach `tidytext` and `textdata` packages
 - In the console, Run: `get_sentiments(lexicon = "nrc")`
