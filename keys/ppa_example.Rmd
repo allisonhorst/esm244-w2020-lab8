@@ -15,13 +15,9 @@ library(spatstat)
 library(maptools) 
 library(sp)
 
-# NOTE: It seems like maptools is under heavy dev right now and many of the functions we're trying (unsuccessfully) to use in maptools to make spatial points stuff, and the problem seems to be the newer versions are problematic. If you were having the "must be projected" error when trying to convert spatial "ppp", the potential fix is to force install an older version of the maptools package. 
+# NOTE: in newest version of maptools (0.9-9) when trying to convert to ppp and owin we were getting an error: "must be projected" error when trying to convert spatial "ppp", we were able to get it working by reverting to older versions of maptools...but that is NOT a fix! 
 
-# The one that worked for both Jessica and me is using maptools 0.9-5 
-# You can get that by: 
-# detach("package:maptools",unload=TRUE)
-# library(devtools)
-# install_version("maptools", version="0.9-5")
+## From Edzer: "The problem (the warning) was created intentionally: spatstat considers all coordinates to be 2D, Euclidean. If you throw in geographical coordinates (degrees lon/lat), which are spherical and not 2D, it will still compute distances by sqrt((x1-x2)^2+(y1-y2)^2), which is only reasonable on the equator. This went, to my frustration, 15 years "unnoticed". The solution is to first project your data, e.g. to the appropriate UTM zone you're in, then use spatstat."
 
 ```
 
@@ -40,9 +36,11 @@ Info from site:
 
 Get the sage grouse data (note: we'll treat each *observation* as a separate "event" - we're not taking into account bird ID here):
 ```{r}
+
+# Need to figure out how to project this (see Edzer's note above) to UTM or some non-spherical projection
 grouse <- read_sf(here("data","sg_data","ds68.shp")) %>% 
   dplyr::select(DATE_) %>% 
-  st_transform(crs = 4326)
+  st_transform("+proj=utm +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs")
 
 # Note: this transform to 6345 *works*, but shouldn't be necessary and messes up the G & L functions...
 
