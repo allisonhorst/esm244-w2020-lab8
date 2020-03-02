@@ -5,6 +5,8 @@ date: "2/26/2020"
 output: html_document
 ---
 
+Useful - CRS components: https://www.earthdatascience.org/courses/earth-analytics/spatial-data-r/reproject-vector-data/
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
@@ -40,9 +42,7 @@ Get the sage grouse data (note: we'll treat each *observation* as a separate "ev
 # Need to figure out how to project this (see Edzer's note above) to UTM or some non-spherical projection
 grouse <- read_sf(here("data","sg_data","ds68.shp")) %>% 
   dplyr::select(DATE_) %>% 
-  st_transform("+proj=utm +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs")
-
-# Note: this transform to 6345 *works*, but shouldn't be necessary and messes up the G & L functions...
+  st_transform(crs = 4326)
 
 plot(grouse)
 ```
@@ -76,12 +76,17 @@ ggplot() +
 # cool. 
 ```
 
-### Now make this a spatial point pattern: 
+### Now make this a spatial point pattern:
+
+### NOTE: this is where we need to reproject to non-spherical coordinates for the ppa to actually be correct (see Edzer note)
 ```{r}
-grouse_sp <- as(mono_grouse,"Spatial")
+grouse_sp <- as_Spatial(mono_grouse)
+proj4string(grouse_sp) <- "+proj=utm +zone=18 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"
 grouse_ppp <- as(grouse_sp, "ppp")
 
-mono_sp <- as(county, "Spatial")
+
+mono_sp <- as_Spatial(county)
+proj4string(mono_sp) <- "+proj=utm +zone=18 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"
 mono_win <- as(mono_sp, "owin")
 
 # Combine as a point pattern (points + window):
